@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <defs>
+    <!-- Glow and Gradient Effects -->
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0050FF" />
+      <stop offset="100%" stop-color="#001860" />
+    </linearGradient>
+    <linearGradient id="crossGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FF3B30" />
+      <stop offset="100%" stop-color="#8B0000" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Outer Ring (representing "C" & "LE" boundary) -->
+  <circle cx="100" cy="100" r="90" fill="none" stroke="#00D6FF" stroke-width="2" opacity="0.3" stroke-dasharray="8,4" />
+  
+  <!-- Outer glowing rings representing C and LE shapes -->
+  <path d="M 50 40 A 80 80 0 1 0 100 180" fill="none" stroke="#0050FF" stroke-width="6" stroke-linecap="round" filter="url(#glow)" />
+  <path d="M 100 20 A 80 80 0 0 1 150 160" fill="none" stroke="#00D6FF" stroke-width="4" stroke-linecap="round" opacity="0.8" />
+
+  <!-- Shield Shape (Equipped & Evangelize) -->
+  <path d="M 100 45 
+           C 125 45, 145 40, 150 55 
+           C 150 100, 125 135, 100 155 
+           C 75 135, 50 100, 50 55 
+           C 55 40, 75 45, 100 45 Z" 
+        fill="url(#shieldGrad)" 
+        stroke="#FFFFFF" 
+        stroke-width="2.5" 
+        filter="drop-shadow(0px 8px 16px rgba(0, 80, 255, 0.45))" />
+
+  <!-- Holy Light Rays inside the Shield -->
+  <path d="M 100 55 L 100 145 M 65 80 L 135 120 M 65 120 L 135 80" stroke="#00D6FF" stroke-width="1" opacity="0.3" />
+
+  <!-- Central Cross (Edify) -->
+  <!-- Vertical Bar -->
+  <rect x="92" y="60" width="16" height="75" rx="3" fill="url(#crossGrad)" stroke="#FF8A80" stroke-width="1" filter="drop-shadow(0px 0px 8px #FF0000)" />
+  <!-- Horizontal Bar -->
+  <rect x="75" y="78" width="50" height="16" rx="3" fill="url(#crossGrad)" stroke="#FF8A80" stroke-width="1" filter="drop-shadow(0px 0px 8px #FF0000)" />
+
+  <!-- Detail glow core -->
+  <circle cx="100" cy="86" r="3" fill="#FFFFFF" filter="url(#glow)" />
+</svg>
