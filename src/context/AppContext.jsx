@@ -1,8 +1,12 @@
 import { createContext, useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { useFamilyStats } from '../hooks/useFamilyStats';
 export const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
+  // Real-time family statistics hook
+  const { familyCount, refreshCount: refreshFamilyCount, forceRefresh: forceFamilyRefresh } = useFamilyStats();
+
   // Navigation & Gate state
   const [welcomeEntered, setWelcomeEntered] = useState(() => {
     return localStorage.getItem('welcomeEntered') === 'true';
@@ -51,7 +55,7 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     const initApp = async () => {
       await fetchSession();
-      //await fetchPublicStats();
+      await fetchPublicStats();
       //await fetchChurchInfo();
       await fetchLeaders();
       await fetchEvents();
@@ -97,14 +101,22 @@ async function fetchSession() {
   }
 };
 
-  // Fetch Public Stats
+  // Sync family count with public stats (real-time updates)
+  useEffect(() => {
+    setPublicStats(prevStats => ({
+      ...prevStats,
+      totalFamilies: familyCount
+    }));
+  }, [familyCount]);
+
+  // Fetch Public Stats (with real-time family count)
   async function fetchPublicStats() {
     try {
       const res = await fetch('/api/public/stats');
       const data = await res.json();
       if (data.success) {
         setPublicStats({
-          totalFamilies: data.totalFamilies,
+          totalFamilies: familyCount,
           upcomingEvents: data.upcomingEvents,
           membersCount: data.membersCount,
           liveStatus: data.liveStatus,
@@ -651,6 +663,7 @@ await supabase.auth.signInWithPassword({
       const data = await res.json();
       if (data.success) {
         fetchPublicStats();
+        refreshFamilyCount();
         if (isAdmin) fetchAuditLogs();
         return { success: true, message: data.message };
       }
@@ -819,6 +832,88 @@ await supabase.auth.signInWithPassword({
     }
   };
 
+  // Create Family Record (Auto-added to real-time count)
+  const createFamily = async (familyData) => {
+    try {
+      const res = await fetch('/api/families', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(familyData)
+      });
+      const data = await res.json();
+      if (data.success) {
+        refreshFamilyCount();
+        fetchPublicStats();
+        if (isAdmin) fetchAuditLogs();
+        return { success: true, message: data.message };
+      }
+      return { success: false, message: data.message };
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  };
+
+  // Update Family Record
+  const updateFamily = async (familyId, familyData) => {
+    try {
+      const res = await fetch(`/api/families/${familyId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(familyData)
+      });
+      const data = await res.json();
+      if (data.success) {
+        refreshFamilyCount();
+        if (isAdmin) fetchAuditLogs();
+        return { success: true, message: data.message };
+      }
+      return { success: false, message: data.message };
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  };
+
+  // Restore Soft-Deleted Family Record
+  const restoreFamily = async (familyId) => {
+    try {
+      const res = await fetch(`/api/families/${familyId}/restore`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      });
+      const data = await res.json();
+      if (data.success) {
+        refreshFamilyCount();
+        fetchPublicStats();
+        if (isAdmin) fetchAuditLogs();
+        return { success: true, message: data.message };
+      }
+      return { success: false, message: data.message };
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  };
+
+  // Approve/Update Family Status
+  const approveFamilyStatus = async (familyId, status) => {
+    try {
+      const res = await fetch(`/api/families/${familyId}/approve`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+      const data = await res.json();
+      if (data.success) {
+        refreshFamilyCount();
+        if (isAdmin) fetchAuditLogs();
+        return { success: true, message: data.message };
+      }
+      return { success: false, message: data.message };
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  };
+
   return (
     <AppContext.Provider value={{
       welcomeEntered,
@@ -857,6 +952,10 @@ await supabase.auth.signInWithPassword({
       updateEventDetails,
       deleteEvent,
       deleteFamilyRecord,
+      createFamily,
+      updateFamily,
+      restoreFamily,
+      approveFamilyStatus,
       deleteSong,
       deleteGalleryItem,
       deleteLeaderProfile,
@@ -870,7 +969,10 @@ await supabase.auth.signInWithPassword({
       saveRolePermissions,
       createCustomRole,
       refreshStats: fetchPublicStats,
-      refreshSession: fetchSession
+      refreshSession: fetchSession,
+      familyCount,
+      refreshFamilyCount,
+      forceFamilyRefresh
     }}>
       {children}
     </AppContext.Provider>

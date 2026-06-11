@@ -805,6 +805,61 @@ app.delete('/api/families/:id', authenticateToken, requirePermission('manage_fam
   }
 });
 
+// Get Real-time Family Count (No Auth Required for Homepage Stats)
+app.get('/api/families/count', async (req, res) => {
+  try {
+    const result = await dbGet("SELECT COUNT(*) as count FROM families WHERE deleted_at IS NULL");
+    res.json({
+      success: true,
+      count: result?.count || 0,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Failed to fetch family count: ' + err.message });
+  }
+});
+
+// Restore Family Record (Soft Delete Restoration)
+app.put('/api/families/:id/restore', authenticateToken, requirePermission('manage_families'), async (req, res) => {
+  const familyId = req.params.id;
+  try {
+    // Only Super Admin can restore deleted records
+    if (req.user.roleName !== 'Super Admin') {
+      return res.status(403).json({ success: false, message: 'Only the Super Admin can restore deleted records.' });
+    }
+
+    await dbRun(`
+      UPDATE families 
+      SET deleted_at = NULL, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `, [familyId]);
+
+    createAuditLog(req.user.id, req.user.username, 'FAMILY_RESTORE', `Restored family record ID: ${familyId}`, req);
+    res.json({ success: true, message: 'Family record restored successfully.' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Failed to restore family record: ' + err.message });
+  }
+});
+
+// Approve/Update Family Status
+app.put('/api/families/:id/approve', authenticateToken, requirePermission('manage_families'), async (req, res) => {
+  const familyId = req.params.id;
+  const { status } = req.body; // pending, approved, rejected
+
+  try {
+    await dbRun(`
+      UPDATE families 
+      SET updated_at = CURRENT_TIMESTAMP
+      WHERE id = ? AND deleted_at IS NULL
+    `, [familyId]);
+
+    createAuditLog(req.user.id, req.user.username, 'FAMILY_APPROVE', `Updated family record ID: ${familyId} to status: ${status}`, req);
+    res.json({ success: true, message: 'Family record status updated successfully.' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Failed to update family status: ' + err.message });
+  }
+});
+
 // Mock Image Compression Upload
 app.post('/api/families/upload-photo', authenticateToken, (req, res) => {
   // Simulates automatic high-quality compression
