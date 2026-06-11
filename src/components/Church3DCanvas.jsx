@@ -260,12 +260,14 @@ export default function Church3DCanvas({ scrollPercent = 0 }) {
     // ----------------------------------------------------
     // Animation Loop
     // ----------------------------------------------------
-    let clock = new THREE.Clock();
+    const clock = new THREE.Timer();
+clock.connect(document);
 
     const animate = () => {
       requestAnimationFrame(animate);
 
-      const elapsed = clock.getElapsedTime();
+      clock.update();
+const elapsed = clock.getElapsed();
 
       // Smoothly interpolate scroll state
       scrollRef.current += (scrollPercent - scrollRef.current) * 0.06;

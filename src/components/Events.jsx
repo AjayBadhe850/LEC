@@ -81,14 +81,16 @@ export default function Events() {
             <div key={ev.id} className="event-card glass-panel">
               {/* Event Header Banner (Stylized dynamic vector instead of standard image placeholders) */}
               <div className="event-banner-placeholder" style={{
-                background: ev.category.includes('Worship') 
-                  ? 'linear-gradient(135deg, #001860, #0050ff)' 
-                  : ev.category.includes('Outreach') 
-                  ? 'linear-gradient(135deg, #300060, #a33bff)' 
-                  : 'linear-gradient(135deg, #0f172a, #1e293b)'
+                background: ev.category?.includes('Worship')
+                  ? 'linear-gradient(135deg, #001860, #0050ff)'
+               : ev.category?.includes('Outreach')
+                ? 'linear-gradient(135deg, #300060, #a33bff)'
+                : 'linear-gradient(135deg, #0f172a, #1e293b)'
               }}>
                 <div className="event-banner-pattern"></div>
-                <span className="event-category-tag">{ev.category}</span>
+                <span className="event-category-tag">
+                 {ev.category || 'Church Event'}
+                  </span>
               </div>
 
               <div className="event-body">

@@ -283,13 +283,15 @@ export default function Canvas3D() {
     // ----------------------------------------------------
     // Animation Sequencer (Timeline ticks)
     // ----------------------------------------------------
-    let clock = new THREE.Clock();
+    const clock = new THREE.Timer();
+    clock.connect(document);
 
     const animate = () => {
       if (!renderer.domElement) return; // check if cleaned up
       requestAnimationFrame(animate);
 
-      const elapsedTime = clock.getElapsedTime();
+      clock.update();
+const elapsedTime = clock.getElapsed();
 
       // Mouse Parallax interpolation
       targetCameraRotation.y = -mouseX * 0.5;
@@ -354,7 +356,7 @@ export default function Canvas3D() {
       if (elapsedTime > 4.5) {
         const tShield = Math.min((elapsedTime - 4.5) / 2.5, 1.0);
         // Descends from Y:5 to Y:1.2, scales from 0 to 0.75
-        shield.position.y = 5 - (tRaysInterp(tShield) * 3.8);
+        shield.position.y = 5 - (tShield * 3.8);
         const s = tShield * 0.72;
         shield.scale.set(s, s, s);
         shield.rotation.y = (1.0 - tShield) * Math.PI * 2 + (elapsedTime * 0.3); // Spin as it lands
@@ -389,7 +391,7 @@ export default function Canvas3D() {
 
       renderer.render(scene, camera);
     };
-
+   animate();
     // Elastic ease helper
     function tRaysInterp(t) {
       return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);

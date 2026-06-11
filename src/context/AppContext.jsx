@@ -51,14 +51,14 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     const initApp = async () => {
       await fetchSession();
-      await fetchPublicStats();
-      await fetchChurchInfo();
+      //await fetchPublicStats();
+      //await fetchChurchInfo();
       await fetchLeaders();
       await fetchEvents();
       await fetchPublicPrayers();
-      await fetchSongs();
-      await fetchBibleVerses();
-      await fetchAnnouncements();
+      //await fetchSongs();
+     // await fetchBibleVerses();
+      //await fetchAnnouncements();
       await fetchGallery();
 
       // Handle redirect query parameters from Google OAuth flow
@@ -78,24 +78,21 @@ export const AppProvider = ({ children }) => {
   // Fetch Session status from server
 async function fetchSession() {
   try {
-    const res = await fetch('/api/auth/session');
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
 
-    if (res.status === 401) {
-      console.log('No active session');
-      return null;
+    if (session) {
+      setCurrentUser(session.user);
+      setIsLoggedIn(true);
+      return session;
     }
 
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status}`);
-    }
-
-    const data = await res.json();
-
-    console.log('Session:', data);
-
-    return data;
+    setCurrentUser(null);
+    setIsLoggedIn(false);
+    return null;
   } catch (error) {
-    console.error('Session validation error:', error);
+    console.error("Session validation error:", error);
     return null;
   }
 };
@@ -158,36 +155,51 @@ async function fetchSession() {
 
   // Fetch Leaders
   async function fetchLeaders() {
-    try {
-      const res = await fetch('/api/leadership');
-      const data = await res.json();
-      if (data.success) setLeaders(data.leaders);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  try {
+    const { data, error } = await supabase
+      .from('leaders')
+      .select('*');
+
+    if (error) throw error;
+
+    setLeaders(data || []);
+  } catch (err) {
+    console.error('Error fetching leaders:', err);
+  }
+};
 
   // Fetch Events
-  async function fetchEvents() {
-    try {
-      const res = await fetch('/api/events');
-      const data = await res.json();
-      if (data.success) setEvents(data.events);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+async function fetchEvents() {
+  try {
+    const { data, error } = await supabase
+      .from('events')
+      .select('*')
+      .order('id', { ascending: false });
+
+    if (error) throw error;
+
+    console.log("Events loaded:", data);
+
+    setEvents(data || []);
+  } catch (err) {
+    console.error('Error fetching events:', err);
+  }
+};
 
   // Fetch Public Prayers for general wall
   async function fetchPublicPrayers() {
-    try {
-      const res = await fetch('/api/prayers');
-      const data = await res.json();
-      if (data.success) setPrayers(data.prayers);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  try {
+    const { data, error } = await supabase
+      .from('prayers')
+      .select('*');
+
+    if (error) throw error;
+
+    setPrayers(data || []);
+  } catch (err) {
+    console.error('Error fetching prayers:', err);
+  }
+};
 
   // Fetch User specific prayers (including confidential)
   async function fetchUserPrayers() {
@@ -221,7 +233,23 @@ async function fetchSession() {
       console.error(err);
     }
   };
+// Fetch Events
+async function fetchEvents() {
+  try {
+    const { data, error } = await supabase
+      .from('events')
+      .select('*')
+      .order('id', { ascending: false });
 
+    if (error) throw error;
+
+    console.log("Events loaded:", data);
+
+    setEvents(data || []);
+  } catch (err) {
+    console.error('Error fetching events:', err);
+  }
+};
   // Fetch Announcements
   async function fetchAnnouncements() {
     try {
@@ -235,14 +263,18 @@ async function fetchSession() {
 
   // Fetch Gallery Items
   async function fetchGallery() {
-    try {
-      const res = await fetch('/api/gallery');
-      const data = await res.json();
-      if (data.success) setGallery(data.gallery);
-    } catch (err) {
-      console.error('Error fetching gallery:', err);
-    }
-  };
+  try {
+    const { data, error } = await supabase
+      .from('gallery')
+      .select('*');
+
+    if (error) throw error;
+
+    setGallery(data || []);
+  } catch (err) {
+    console.error('Error fetching gallery:', err);
+  }
+};
 
   // Admin users loader
   const fetchAdminUsers = async () => {
@@ -286,10 +318,11 @@ async function fetchSession() {
 // Login handler
 const handleLogin = async (email, password) => {
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
+   const { data, error } =
+await supabase.auth.signInWithPassword({
+  email,
+  password
+});
 
     if (error) {
       return {
@@ -378,29 +411,31 @@ const handleLogin = async (email, password) => {
 
   // Registration handler
   const handleRegister = async (userInfo) => {
-    try {
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userInfo)
-      });
-      const data = await res.json();
-      
-      if (data.success) {
-        setCurrentUser(data.user);
-        setIsLoggedIn(true);
-        setIsAdmin(false);
-        setIsPastor(false);
-        
-        fetchUserPrayers();
-        fetchPublicStats();
-        return { success: true, message: data.message };
-      }
-      return { success: false, message: data.message };
-    } catch (err) {
-      return { success: false, message: 'Registration failed: ' + err.message };
+  try {
+    const { data, error } = await supabase.auth.signUp({
+      email: userInfo.email,
+      password: userInfo.password,
+    });
+
+    if (error) {
+      return {
+        success: false,
+        message: error.message,
+      };
     }
-  };
+
+    return {
+      success: true,
+      message: "Registration successful",
+      user: data.user,
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err.message,
+    };
+  }
+};
 
   // Logout handler
   const handleLogout = async () => {
