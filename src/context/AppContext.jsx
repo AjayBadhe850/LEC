@@ -111,23 +111,20 @@ async function fetchSession() {
 
   // Fetch Public Stats (with real-time family count)
   async function fetchPublicStats() {
-    try {
-      const res = await fetch('/api/public/stats');
-      const data = await res.json();
-      if (data.success) {
-        setPublicStats({
-          totalFamilies: familyCount,
-          upcomingEvents: data.upcomingEvents,
-          membersCount: data.membersCount,
-          liveStatus: data.liveStatus,
-          liveDetails: data.liveDetails,
-          mission: data.mission
-        });
-      }
-    } catch (err) {
-      console.error('Error fetching public stats:', err);
-    }
-  };
+  try {
+    setPublicStats(prev => ({
+      ...prev,
+      totalFamilies: familyCount,
+      upcomingEvents: events.length,
+      membersCount: familyCount,
+      liveStatus: false,
+      liveDetails: null,
+      mission: 'Welcome to Life Edifiers Church'
+    }));
+  } catch (err) {
+    console.error('Error fetching public stats:', err);
+  }
+};
 
   // Fetch Church Information Details
   async function fetchChurchInfo() {
