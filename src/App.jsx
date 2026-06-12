@@ -1,5 +1,6 @@
 import { useContext } from 'react';
 import { AppContext } from './context/AppContext';
+import { Analytics } from '@vercel/analytics/react';
 
 // Import Components
 import WelcomeGate from './components/WelcomeGate';
@@ -521,6 +522,7 @@ function App() {
           max-width: 100px;
         }
       `}</style>
+      <Analytics />
     </div>
   );
 }
