@@ -757,7 +757,7 @@ export default function AuthPages() {
                     </div>
 
                     <button type="submit" className="btn-primary w-full auth-submit-btn">
-                      <span>Initiate Registration & 2FA Setup</span>
+                      <span>Enter into Lords Kingdom</span>
                     </button>
                   </form>
                 </div>
