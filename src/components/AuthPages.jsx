@@ -596,7 +596,7 @@ export default function AuthPages() {
                     </div>
 
                     <button type="submit" className="btn-primary w-full auth-submit-btn">
-                      <span>Access CMS Portal</span>
+                      <span>Kingdom Welcomes You</span>
                     </button>
                   </form>
 
@@ -757,7 +757,7 @@ export default function AuthPages() {
                     </div>
 
                     <button type="submit" className="btn-primary w-full auth-submit-btn">
-                      <span>Enter into Lords Kingdom</span>
+                      <span>Enter into Lords Kingdom</span> 
                     </button>
                   </form>
                 </div>
