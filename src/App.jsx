@@ -58,7 +58,10 @@ function App() {
         return <Hero />;
     }
   };
-
+const isDashboard =
+  activePage === 'member-dashboard' ||
+  activePage === 'pastor-dashboard' ||
+  activePage === 'admin-dashboard';
   // Parallax Header for sub-pages
   const renderSubHeader = () => {
     if (activePage === 'home') return null;
@@ -122,7 +125,10 @@ function App() {
       </div>
     );
   };
-
+const isDashboard =
+  activePage === 'member-dashboard' ||
+  activePage === 'pastor-dashboard' ||
+  activePage === 'admin-dashboard';
   return (
     <div className="app-layout">
       {/* 1. Introductory Gate */}
@@ -132,10 +138,10 @@ function App() {
       {welcomeEntered && (
         <div className="main-content-layout animate-fade-in">
           {/* 2. Top Header Navbar */}
-          <Navbar />
+          {!isDashboard && <Navbar />}
 
           {/* 3. Page Title Block */}
-          {renderSubHeader()}
+          {!isDashboard && renderSubHeader()}
 
           {/* 4. Active view */}
           <main className="view-wrapper">
@@ -148,7 +154,8 @@ function App() {
           )}
 
           {/* 6. Main Footer */}
-          <footer className="main-footer glass-panel">
+          {!isDashboard && (
+  <footer className="main-footer glass-panel">
             <div className="footer-cols">
               <div className="footer-brand-col">
                 <div className="footer-brand">
@@ -208,6 +215,7 @@ function App() {
               </div>
             </div>
           </footer>
+)}
         </div>
       )}
 
