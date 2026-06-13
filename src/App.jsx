@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import { AppContext } from './context/AppContext';
 
+
 // Import Components
 import WelcomeGate from './components/WelcomeGate';
 import Navbar from './components/Navbar';
