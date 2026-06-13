@@ -4,13 +4,17 @@ import { User, Users, HeartHandshake, Bell, LogOut, Check, Mail, Phone, MapPin, 
 import TwoFactorSettings from './TwoFactorSettings';
 
 export default function MemberDashboard() {
-  const { 
-    currentUser, 
-    handleLogout, 
-    prayers, 
-    notifications, 
-    markNotificationAsRead 
-  } = useContext(AppContext);
+  const {
+  currentUser,
+  handleLogout,
+  prayers,
+  notifications,
+  markNotificationAsRead,
+  userRole
+} = useContext(AppContext);
+const isAdmin = userRole === "Super Admin";
+const isPastor = userRole === "Pastor";
+const isMember = userRole === "Member";
 
   const [activeTab, setActiveTab] = useState('overview');
   const [myFamily, setMyFamily] = useState(null);
@@ -71,6 +75,46 @@ export default function MemberDashboard() {
               <User size={16} />
               <span>Covenant Profile</span>
             </button>
+            <button
+  onClick={() => setActiveTab('overview')}
+  className={`sidebar-link-btn ${activeTab === 'overview' ? 'active' : ''}`}
+>
+  <User size={16} />
+  <span>Covenant Profile</span>
+</button>
+
+{/* Pastor + Admin */}
+{(isPastor || isAdmin) && (
+  <button
+    onClick={() => setActiveTab('events')}
+    className={`sidebar-link-btn ${activeTab === 'events' ? 'active' : ''}`}
+  >
+    <Bell size={16} />
+    <span>Event Management</span>
+  </button>
+)}
+
+{/* Admin Only */}
+{isAdmin && (
+  <button
+    onClick={() => setActiveTab('users')}
+    className={`sidebar-link-btn ${activeTab === 'users' ? 'active' : ''}`}
+  >
+    <Users size={16} />
+    <span>User Management</span>
+  </button>
+)}
+
+{/* Admin Only */}
+{isAdmin && (
+  <button
+    onClick={() => setActiveTab('settings')}
+    className={`sidebar-link-btn ${activeTab === 'settings' ? 'active' : ''}`}
+  >
+    <Key size={16} />
+    <span>System Settings</span>
+  </button>
+)}
             
             <button 
               onClick={() => setActiveTab('prayers')} 
@@ -109,7 +153,26 @@ export default function MemberDashboard() {
         {/* Content Area */}
         <main className="dashboard-content text-left">
           
-          {activeTab === 'overview' && (
+          {activeTab === 'events' && (isPastor || isAdmin) && (
+  <div>
+    <h2>Event Management</h2>
+    <p>Create, edit and manage church events.</p>
+  </div>
+)}
+
+{activeTab === 'users' && isAdmin && (
+  <div>
+    <h2>User Management</h2>
+    <p>Manage church members and roles.</p>
+  </div>
+)}
+
+{activeTab === 'settings' && isAdmin && (
+  <div>
+    <h2>System Settings</h2>
+    <p>Configure church portal settings.</p>
+  </div>
+)}
             /* OVERVIEW TAB */
             <div className="dashboard-tab-panel animate-text-reveal">
               <div className="panel-header">
@@ -190,7 +253,7 @@ export default function MemberDashboard() {
                 </div>
               </div>
             </div>
-          )}
+          )
 
           {activeTab === 'prayers' && (
             /* PRAYERS TAB */

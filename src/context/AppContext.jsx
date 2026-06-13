@@ -6,7 +6,7 @@ export const AppContext = createContext();
 export const AppProvider = ({ children }) => {
   // Real-time family statistics hook
   const { familyCount, refreshCount: refreshFamilyCount, forceRefresh: forceFamilyRefresh } = useFamilyStats();
-
+const [userRole, setUserRole] = useState("Member");
   // Navigation & Gate state
   const [welcomeEntered, setWelcomeEntered] = useState(() => {
     return localStorage.getItem('welcomeEntered') === 'true';
@@ -327,31 +327,45 @@ async function fetchEvents() {
 // Login handler
 const handleLogin = async (email, password) => {
   try {
-   const { data, error } =
-await supabase.auth.signInWithPassword({
-  email,
-  password
-});
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
     if (error) {
       return {
         success: false,
-        message: error.message
+        message: error.message,
       };
     }
 
-    setCurrentUser(data.user);
-    setIsLoggedIn(true);
+    // Default role
+    let role = "Member";
+
+    // Fetch role from profiles table
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", data.user.id)
+      .single();
+
+    if (!profileError && profile) {
+      role = profile.role;
+    }
+
+    setUserRole(role);
 
     return {
       success: true,
-      user: data.user,
-      message: "Logged in successfully"
+      user: {
+        ...data.user,
+        roleName: role,
+      },
     };
   } catch (err) {
     return {
       success: false,
-      message: err.message
+      message: err.message,
     };
   }
 };
@@ -918,6 +932,8 @@ await supabase.auth.signInWithPassword({
       activePage,
       setActivePage,
       currentUser,
+      userRole,
+      setUserRole,
       isLoggedIn,
       isAdmin,
       isPastor,

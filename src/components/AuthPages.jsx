@@ -12,7 +12,16 @@ const GoogleIcon = () => (
 );
 
 export default function AuthPages() {
-  const { handleLogin, handleVerify2FA, handleGoogleSignIn, handleRegister, setActivePage, isLoggedIn } = useContext(AppContext);
+  const {
+  handleLogin,
+  handleVerify2FA,
+  handleGoogleSignIn,
+  handleRegister,
+  setActivePage,
+  isLoggedIn,
+  userRole,
+  setUserRole
+} = useContext(AppContext);
   const [isLoginView, setIsLoginView] = useState(true);
 
   // Form Inputs
@@ -78,18 +87,7 @@ export default function AuthPages() {
     let finalUsername = usernameOrEmail.trim();
     let finalPassword = password.trim();
 
-    // Mapping for login shortcuts
-    if (finalUsername.toLowerCase() === 'admin') {
-      finalUsername = 'Ajay_Badhe';
-      finalPassword = 'Ajay_Badhe_2026!';
-    } else if (finalUsername.toLowerCase() === 'pastor') {
-      finalUsername = 'Pastor_Jonathan';
-      finalPassword = 'pastorpassword';
-    } else if (finalUsername.toLowerCase() === 'user' || finalUsername.toLowerCase() === 'member') {
-      finalUsername = 'John_Doe';
-      finalPassword = 'memberpassword';
-    }
-
+    
     if (!finalUsername || !finalPassword) {
       setErrorMessage('Please fill in both fields.');
       return;
@@ -97,6 +95,7 @@ export default function AuthPages() {
 
     const res = await handleLogin(finalUsername, finalPassword);
     if (res.success) {
+      setUserRole(res.user?.roleName || "Member");
       if (res.twoFactorRequired) {
         setTemp2FAToken(res.tempToken);
         setShow2FAVerifyScreen(true);
@@ -129,6 +128,7 @@ export default function AuthPages() {
 
     const res = await handleVerify2FA(temp2FAToken, totpCode);
     if (res.success) {
+      setUserRole(res.user?.roleName || "Member");
       setSuccessMessage('2FA Authentication Successful!');
       setTimeout(() => {
         if (res.user?.roleName === 'Super Admin') {
@@ -557,27 +557,16 @@ export default function AuthPages() {
                     <div className="form-group">
                       <label>Email Address or Username</label>
                       <div className="input-with-icon">
-                        <Mail size={16} className="input-icon" />
-                        <input
-                          type="text"
-                          value={usernameOrEmail}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            setUsernameOrEmail(val);
-                            const lower = val.trim().toLowerCase();
-                            if (lower === 'admin') {
-                              setPassword('Ajay_Badhe_2026!');
-                            } else if (lower === 'pastor') {
-                              setPassword('pastorpassword');
-                            } else if (lower === 'user' || lower === 'member') {
-                              setPassword('memberpassword');
-                            }
-                          }}
-                          placeholder="Enter username"
-                          className="form-input"
-                          required
-                        />
-                      </div>
+  <Mail size={16} className="input-icon" />
+  <input
+    type="text"
+    value={usernameOrEmail}
+    onChange={(e) => setUsernameOrEmail(e.target.value)}
+    placeholder="Enter username"
+    className="form-input"
+    required
+  />
+</div>
                     </div>
 
                     <div className="form-group">
