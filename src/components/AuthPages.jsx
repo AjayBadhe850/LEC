@@ -607,15 +607,27 @@ export default function AuthPages() {
                   </div>
 
                   <button
-                    onClick={() => {
-                      window.location.href = '/api/auth/google/login';
-                    }}
-                    className="btn-secondary w-full"
-                    style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'var(--border-glass)' }}
-                  >
-                    <GoogleIcon />
-                    <span>Sign In with Google</span>
-                  </button>
+  onClick={async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin,
+      },
+    });
+
+    if (error) {
+      console.error(error);
+    }
+  }}
+  className="btn-secondary w-full"
+  style={{
+    background: 'rgba(255,255,255,0.02)',
+    borderColor: 'var(--border-glass)',
+  }}
+>
+  <GoogleIcon />
+  <span>Sign In with Google</span>
+</button>
                 </div>
               ) : (
                 /* COVENANT MEMBERSHIP REGISTRATION */
