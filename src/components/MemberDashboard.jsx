@@ -2,7 +2,7 @@ import { useContext, useState, useEffect } from 'react';
 import { AppContext } from '../context/AppContext';
 import { User, Users, HeartHandshake, Bell, LogOut, Check, Mail, Phone, MapPin, Key } from 'lucide-react';
 import TwoFactorSettings from './TwoFactorSettings';
-
+import { supabase } from '../lib/supabase';
 export default function MemberDashboard() {
   const {
   currentUser,
@@ -20,22 +20,29 @@ const isMember = userRole === "Member";
   const [myFamily, setMyFamily] = useState(null);
   const [loadingFamily, setLoadingFamily] = useState(true);
 
-  useEffect(() => {
-    fetch('/api/families/my')
-      .then(res => res.json())
-      .then(data => {
-        if (data.success && data.family) {
-          setMyFamily(data.family);
-        }
-        setLoadingFamily(false);
-      })
-      .catch(err => {
-        console.error(err);
-        setLoadingFamily(false);
-      });
-  }, []);
+ useEffect(() => {
+  const loadFamily = async () => {
+    if (!currentUser) return;
 
-  if (!currentUser) return null;
+    try {
+      const { data, error } = await supabase
+        .from('families')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .single();
+
+      if (error) throw error;
+
+      setMyFamily(data);
+    } catch (err) {
+      console.error('Failed to load family:', err);
+    } finally {
+      setLoadingFamily(false);
+    }
+  };
+
+  loadFamily();
+}, [currentUser]);
 
   // Filter prayers submitted by this user
   const myPrayers = prayers.filter((p) => {
