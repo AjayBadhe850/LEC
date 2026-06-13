@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect } from 'react';
 import { AppContext } from '../context/AppContext';
 import { Mail, Lock, User, MapPin, Plus, Trash2, Key, Check, ShieldAlert, ArrowRight, Download, RefreshCw, Smartphone } from 'lucide-react';
-
+import { supabase } from '../lib/supabase';
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style={{ marginRight: '8px' }}>
     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -608,22 +608,16 @@ export default function AuthPages() {
 
                   <button
   onClick={async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: window.location.origin,
-      },
+    console.log("clicked");
+
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
     });
 
-    if (error) {
-      console.error(error);
-    }
+    console.log("data", data);
+    console.log("error", error);
   }}
   className="btn-secondary w-full"
-  style={{
-    background: 'rgba(255,255,255,0.02)',
-    borderColor: 'var(--border-glass)',
-  }}
 >
   <GoogleIcon />
   <span>Sign In with Google</span>
@@ -637,7 +631,39 @@ export default function AuthPages() {
                     <p>Register your household profile to join Life Edifiers fellowship registry.</p>
                   </div>
                   <div className="form-divider"></div>
+                  <div className="form-divider"></div>
+                  <div className="oauth-register-section">
+  <button
+    type="button"
+    onClick={async () => {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin,
+        },
+      });
 
+      if (error) {
+        console.error(error);
+      }
+    }}
+    className="btn-secondary w-full"
+    style={{
+      background: 'rgba(255,255,255,0.02)',
+      borderColor: 'var(--border-glass)',
+      marginBottom: '16px'
+    }}
+  >
+    <GoogleIcon />
+    <span>Register with Google</span>
+  </button>
+
+  <div className="oauth-divider-row">
+    <span className="line"></span>
+    <span className="text">or register manually</span>
+    <span className="line"></span>
+  </div>
+</div>
                   <form onSubmit={submitRegistration} className="auth-form">
 
                     <div className="registration-fields-grid">
