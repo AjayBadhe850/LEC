@@ -125,10 +125,7 @@ const isDashboard =
       </div>
     );
   };
-const isDashboard =
-  activePage === 'member-dashboard' ||
-  activePage === 'pastor-dashboard' ||
-  activePage === 'admin-dashboard';
+
   return (
     <div className="app-layout">
       {/* 1. Introductory Gate */}
