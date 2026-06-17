@@ -72,9 +72,11 @@ export default function Navbar() {
               </button>
             </div>
           ) : (
+    
             <button onClick={() => handleNavClick('auth')} className="btn-primary auth-btn-nav">
               Join Lord's Kingdom
             </button>
+  
           )}
         </div>
 
@@ -124,6 +126,7 @@ export default function Navbar() {
               </button>
             </div>
           ) : (
+            
             <button onClick={() => handleNavClick('auth')} className="btn-primary w-full mobile-join-btn">
               Join Lord's Kingdom
             </button>

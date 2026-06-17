@@ -529,6 +529,7 @@ export default function AuthPages() {
               >
                 Sign In
               </button>
+              {/*
               <button
                 className={`auth-tab ${!isLoginView ? 'active' : ''}`}
                 onClick={() => {
@@ -538,6 +539,7 @@ export default function AuthPages() {
               >
                 Join Lord's Kingdom
               </button>
+*/}
             </div>
 
             {/* Form panel wrapper */}
@@ -583,10 +585,11 @@ export default function AuthPages() {
                         />
                       </div>
                     </div>
-
+{/*
                     <button type="submit" className="btn-primary w-full auth-submit-btn">
                       <span>Kingdom Welcomes You</span>
                     </button>
+*/}
                   </form>
 
                   <div className="oauth-divider-row">
@@ -594,7 +597,7 @@ export default function AuthPages() {
                     <span className="text">or</span>
                     <span className="line"></span>
                   </div>
-
+{/*}
                   <button
   onClick={async () => {
     console.log("clicked");
@@ -611,6 +614,7 @@ export default function AuthPages() {
   <GoogleIcon />
   <span>Sign In with Google</span>
 </button>
+*/}
                 </div>
               ) : (
                 /* COVENANT MEMBERSHIP REGISTRATION */
@@ -786,6 +790,7 @@ export default function AuthPages() {
                     <button type="submit" className="btn-primary w-full auth-submit-btn">
                       <span>Enter into Lords Kingdom</span> 
                     </button>
+
                   </form>
                 </div>
               )}

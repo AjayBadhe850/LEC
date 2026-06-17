@@ -39,11 +39,13 @@ export default function Hero() {
         )}
 
         <div className="hero-actions animate-fade-in-delayed">
+
+{/*}
           <button onClick={() => setActivePage('auth')} className="btn-primary">
             <Compass size={18} />
             <span>Join Lord's Kingdom</span>
           </button>
-
+*/}
           <button onClick={() => setActivePage('live')} className="btn-secondary">
             <Play size={18} fill="currentColor" />
             <span>Watch Live</span>
