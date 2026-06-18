@@ -1,5 +1,6 @@
 import { useContext } from 'react';
 import { AppContext } from './context/AppContext';
+import { Analytics } from '@vercel/analytics/react';
 
 
 // Import Components
@@ -527,6 +528,7 @@ const isDashboard =
           max-width: 100px;
         }
       `}</style>
+      <Analytics />
     </div>
   );
 }
